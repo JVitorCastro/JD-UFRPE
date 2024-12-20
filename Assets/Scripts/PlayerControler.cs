@@ -21,6 +21,9 @@ public class PlayerControler : MonoBehaviour
     private bool playerInvencible;
     public bool isDead;
 
+    public GameObject swordHitBox;
+    private Collider2D swordCollider;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -28,6 +31,7 @@ public class PlayerControler : MonoBehaviour
         _playerRigidbody2D = GetComponent<Rigidbody2D>();
         _playerAnimator = GetComponent<Animator>();
         _playerRenderer = GetComponent<SpriteRenderer>();
+        swordCollider = swordHitBox.GetComponent<Collider2D>();
 
         _playerInitialSpeed = _playerSpeed;
     }
@@ -56,13 +60,6 @@ public class PlayerControler : MonoBehaviour
         {
             _playerAnimator.SetInteger("Movimento", 2);
         }
-
-        if (isDead)
-        {
-            Destroy(gameObject, this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length + 1.2f);
-            Invoke("LoadGame", 1.4f);
-        }
-
 
     }
 
@@ -112,43 +109,73 @@ public class PlayerControler : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    //private void OnCollisionEnter2D(Collision2D collision)
+    //{
+    //    switch (collision.gameObject.tag)
+    //    {
+    //        case "Enemy":
+    //            Hurt();
+    //            break;
+
+    //        default: 
+    //            break;
+    //    }
+    //}
+
+    void GetHit(float damage)
     {
-        switch (collision.gameObject.tag)
+
+        if (isDead)
         {
-            case "Enemy":
-                Hurt();
-                break;
+            return;
+        }
+
+        if (playerInvencible == false && health > 1)
+        {
+            health--;
+            playerInvencible = true;
+            StartCoroutine("Damage");
+            Debug.Log("Perdeu uma vida!");
+        }
+        else if (!playerInvencible)
+        {
+            health--;
+            _playerAnimator.SetTrigger("Death");
+            StartCoroutine("Death");
         }
     }
 
     void Hurt()
     {
-        CheckIfPlayerDeath();
+        if (isDead)
+        {
+            return;
+        }
 
-        if (!playerInvencible && health > 0)
+        if (playerInvencible == false && health > 1)
         {
             health--;
-
             playerInvencible = true;
-
             StartCoroutine("Damage");
             Debug.Log("Perdeu uma vida!");
+        }
+        else if (!playerInvencible)
+        {
+            health--;
+            _playerAnimator.SetTrigger("Death");
+            StartCoroutine("Death");
         }
 
     }
 
-    private void CheckIfPlayerDeath()
+    IEnumerator Death()
     {
-        if (health <= 0)
-        {
-            _playerAnimator.SetTrigger("Death"); 
-            isDead = true;
-            health = 0;
-            _playerSpeed = 0;
-            Debug.Log("DEAD!");
-        }
-
+        isDead = true;
+        _playerSpeed = 0;
+        Debug.Log("DEAD!");
+        yield return new WaitForSeconds(1.3f);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(2);
     }
 
     IEnumerator Damage()
@@ -166,11 +193,6 @@ public class PlayerControler : MonoBehaviour
 
         _playerRenderer.color = Color.white;
         playerInvencible = false;
-    }
-
-    void LoadGame()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 }
