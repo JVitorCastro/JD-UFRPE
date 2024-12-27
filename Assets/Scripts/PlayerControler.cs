@@ -2,6 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerControler : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class PlayerControler : MonoBehaviour
     private bool _isAttack = false;
 
     public int health = 3;
+    private int maxHealth;
     public Color hitColor;
     public Color noHitColor;
     private bool playerInvencible;
@@ -23,6 +25,12 @@ public class PlayerControler : MonoBehaviour
 
     public GameObject swordHitBox;
     private Collider2D swordCollider;
+
+    public Image lifeBar;
+    public Image redBar;
+    public GameObject specialArea;
+    public float timeSpecialArea = 5f;
+    public bool isAreaActive = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,6 +42,8 @@ public class PlayerControler : MonoBehaviour
         swordCollider = swordHitBox.GetComponent<Collider2D>();
 
         _playerInitialSpeed = _playerSpeed;
+
+        this.maxHealth = health;
     }
 
     // Update is called once per frame
@@ -109,19 +119,6 @@ public class PlayerControler : MonoBehaviour
         }
     }
 
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    switch (collision.gameObject.tag)
-    //    {
-    //        case "Enemy":
-    //            Hurt();
-    //            break;
-
-    //        default: 
-    //            break;
-    //    }
-    //}
-
     void GetHit(float damage)
     {
 
@@ -136,12 +133,68 @@ public class PlayerControler : MonoBehaviour
             playerInvencible = true;
             StartCoroutine("Damage");
             Debug.Log("Perdeu uma vida!");
+
+            LifeBarUpdate();
         }
         else if (!playerInvencible)
         {
             health--;
             _playerAnimator.SetTrigger("Death");
             StartCoroutine("Death");
+            LifeBarUpdate();
+        }
+    }
+
+    public void GetHeal(int valHeal)
+    {
+        if (health < maxHealth)
+        {
+            health += valHeal;
+            LifeBarUpdate();           
+        }
+    }
+
+    public void LifeBarUpdate()
+    {
+        Vector3 lifeBarScale = lifeBar.rectTransform.localScale;
+        lifeBarScale.x = (float)health / maxHealth;
+        lifeBar.rectTransform.localScale = lifeBarScale;
+        StartCoroutine(DecreasingRedBar(lifeBarScale));
+    }
+
+    IEnumerator DecreasingRedBar(Vector3 newScale)
+    {
+        yield return new WaitForSeconds(0.5f);
+        Vector3 redBarScale = redBar.rectTransform.localScale;
+        while (redBar.transform.localScale.x > newScale.x)
+        {
+            redBarScale.x -= Time.deltaTime * 0.25f;
+            redBar.transform.localScale = redBarScale;
+            yield return null;
+        }
+        redBar.transform.localScale = newScale;
+    }
+
+    private IEnumerator ActivateSpecialAreaCoroutine()
+    {
+        specialArea.SetActive(true);
+        yield return new WaitForSeconds(timeSpecialArea);
+        specialArea.SetActive(false);
+    }
+
+    public void SpecialArea()
+    {
+        if (!isAreaActive)
+        {
+            isAreaActive = true;
+            StartCoroutine("ActivateSpecialAreaCoroutine");
+            isAreaActive = false;
+        }
+        else
+        {
+            StopCoroutine("ActivateSpecialAreaCoroutine");
+            StartCoroutine("ActivateSpecialAreaCoroutine");
+            isAreaActive= false;
         }
     }
 
@@ -193,6 +246,11 @@ public class PlayerControler : MonoBehaviour
 
         _playerRenderer.color = Color.white;
         playerInvencible = false;
+    }
+
+    public int GetHeatlh()
+    {
+        return this.health;
     }
 
 }

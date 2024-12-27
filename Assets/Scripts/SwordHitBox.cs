@@ -4,7 +4,7 @@ public class SwordHitBox : MonoBehaviour
 {
     public Collider2D swordCollider;
     public float swordDamage = 1f;
-    public float knockBackForce = 90000f;
+    public float knockBackForce = 900f;
 
     void Start()
     {
@@ -27,7 +27,7 @@ public class SwordHitBox : MonoBehaviour
         IDamageable damageableObject = collision.GetComponent<IDamageable>();
 
 
-        if (collision.gameObject.tag == "Enemy" && damageableObject != null)
+        if (collision.gameObject.tag == "Enemy" && damageableObject != null && collision.gameObject.name != "AreaDetection")
         {
             Vector3 parentPosition = gameObject.GetComponentInParent<Transform>().position;
             Vector2 direction = (Vector2) (collision.gameObject.transform.position - parentPosition).normalized;

@@ -128,7 +128,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_AngularDamping: 0
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -195,6 +195,9 @@ MonoBehaviour:
   health: 3
   _detectionArea: {fileID: 4436095890820914791}
   slimeDamage: 1
+  apple: {fileID: 1961165749314851400, guid: 78221863bd0cc414bb48d1f6453fc5a1, type: 3}
+  cheese: {fileID: 5924224762249853926, guid: 8e16c34800dbfb448a0d578c49d5d3f3, type: 3}
+  dropRate: 20
 --- !u!1 &8982331487908180603
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,7 +266,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 4
+  m_Radius: 50
 --- !u!114 &4436095890820914791
 MonoBehaviour:
   m_ObjectHideFlags: 0

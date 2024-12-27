@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,10 +13,12 @@ public class SlimeController : MonoBehaviour, IDamageable
     private Animator slimeAnimator;
 
     public DetectionController  _detectionArea;
-
     private SpriteRenderer      _spriteRenderer;
-
+    private CapsuleCollider2D _slimeCollider;
     public float slimeDamage = 1;
+    public GameObject apple;
+    public GameObject cheese;
+    public int dropRate;
 
     public float Health { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
@@ -25,6 +28,7 @@ public class SlimeController : MonoBehaviour, IDamageable
         _slimeRB2D = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         slimeAnimator = GetComponent<Animator>();
+        _slimeCollider = GetComponent<CapsuleCollider2D>();
     }
 
     // Update is called once per frame
@@ -52,9 +56,9 @@ public class SlimeController : MonoBehaviour, IDamageable
         }
     }
 
-    void IDamageable.GetHit(float damage)
+    public void GetHit(float damage)
     {
-        if (health > 1)
+        if (health > 1 && damage < health)
         {
             Debug.Log("Slime Hit for: " + damage);
             health--;           
@@ -62,12 +66,14 @@ public class SlimeController : MonoBehaviour, IDamageable
         else
         {
             _moveSpeedSlime = 0f;
+            _slimeCollider.enabled = false;
             slimeAnimator.SetTrigger("Death");
-            Invoke("Death", 5f);
+            Invoke("Death", 1.8f);
+            DropCollectible();
         }
     }
 
-    void IDamageable.GetHit(float damage, Vector2 knockBack)
+    public void GetHit(float damage, Vector2 knockBack)
     {
         _slimeRB2D.AddForce(knockBack);
 
@@ -80,8 +86,24 @@ public class SlimeController : MonoBehaviour, IDamageable
         else
         {
             _moveSpeedSlime = 0f;
+            _slimeCollider.enabled = false;
             slimeAnimator.SetTrigger("Death");
-            Invoke("Death", 2f);
+            Invoke("Death", 1.8f);
+            DropCollectible();
+        }
+    }
+
+    public void DropCollectible()
+    {
+        int randomNumber = Random.Range(0, 100);
+
+        if (randomNumber <= dropRate && randomNumber % 2 == 0)
+        {
+            Instantiate(apple, transform.position, Quaternion.Euler(0f, 0f, 0f));
+        }
+        else if (randomNumber <= dropRate && randomNumber % 2 != 0)
+        {
+            Instantiate(cheese, transform.position, Quaternion.Euler(0f, 0f, 0f));
         }
     }
 
